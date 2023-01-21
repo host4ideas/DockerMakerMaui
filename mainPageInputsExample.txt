@@ -1,0 +1,92 @@
+
+    <StackLayout>
+        <Label Text="Crear contenedor de Docker"
+            HorizontalOptions="Center"
+            FontSize="24"
+            Margin="10"
+            TextColor="Black"
+            FontAttributes="Bold"/>
+        <Label Text="Use este formulario para crear un contenedor de Docker con la imagen seleccionada y el nombre especificado."
+            HorizontalOptions="Center"
+            Margin="10"
+            TextColor="Gray"/>
+        <StackLayout x:Name="MessageStack"
+                  IsVisible="False"
+                  Margin="10">
+            <Frame BackgroundColor="Green"
+                Padding="10">
+                <Label x:Name="MessageLabel"
+                    Text="Mensaje de éxito"
+                    TextColor="White"
+                    FontAttributes="Bold"/>
+            </Frame>
+        </StackLayout>
+        <StackLayout x:Name="ErrorStack"
+                  IsVisible="False"
+                  Margin="10">
+            <Frame BackgroundColor="Red"
+                Padding="10">
+                <Label x:Name="ErrorLabel"
+                    Text="Mensaje de error"
+                    TextColor="White"
+                    FontAttributes="Bold"/>
+            </Frame>
+        </StackLayout>
+        <StackLayout x:Name="ContainersStack"
+                  Margin="10">
+            <Label Text="Contenedores disponibles"
+                TextColor="Black"
+                FontAttributes="Bold"/>
+            <StackLayout Orientation="Horizontal">
+                <Button Text="Iniciar"
+                     TextColor="Green"
+                     Image="play_fill.svg"
+                     Margin="5"/>
+                <Button Text="Detener"
+                     TextColor="Red"
+                     Image="stop_fill.svg"
+                     Margin="5"/>
+            </StackLayout>
+            <Picker x:Name="ContainerPicker"
+                 SelectedIndex="0">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type local:ContainerListResponse}">
+                        <local:ContainerListResponse Names="Contenedor 1"/>
+                        <local:ContainerListResponse Names="Contenedor 2"/>
+                        <local:ContainerListResponse Names="Contenedor 3"/>
+                    </x:Array>
+                </Picker.ItemsSource>
+                <Picker.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding Names}"/>
+                    </DataTemplate>
+                </Picker.ItemTemplate>
+            </Picker>
+        </StackLayout>
+        <StackLayout x:Name="ImagesStack"
+                  Margin="10">
+            <Label Text="Imágenes disponibles"
+                TextColor="Black"
+                FontAttributes="Bold"/>
+            <ListView x:Name="ImagesList"
+HasUnevenRows="True"
+                                  <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding RepoTags}"/>
+                </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+        <StackLayout Orientation="Horizontal"
+                 Margin="10">
+            <Entry x:Name="ContainerNameEntry"
+               Placeholder="Nombre del contenedor"
+               Margin="10"/>
+            <Button Text="Crear contenedor"
+                TextColor="White"
+                BackgroundColor="Green"
+                Margin="10"
+                Clicked="OnCreateContainerClicked"/>
+        </StackLayout>
+    </StackLayout>
+    
