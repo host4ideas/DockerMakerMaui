@@ -1,60 +1,105 @@
-﻿using Docker.DotNet;
-using Docker.DotNet.Models;
+﻿using DockerContainerLogic;
 
 namespace DockerMakerMaui;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
-    private readonly DockerClient client;
+    int count = 0;
+    private readonly Images imagesClient;
+    private readonly Containers containersClient;
 
     public MainPage()
-	{
-		InitializeComponent();
-	}
-
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
-
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
-
-    /// <summary>
-    /// Method <c>Index</c> executed on view creation.
-    /// </summary>
-    private void LoadDocker()
     {
-        Boolean error = false;
-        string message;
-        IList<ImagesListResponse> imagesResponse;
-        IList<ContainerListResponse> containersResponse;
+        InitializeComponent();
+        // Initialize Docker Client
+        this.imagesClient = new();
+        this.containersClient = new();
+        this.PopulateInfo();
+    }
 
+    //private void OnCounterClicked(object sender, EventArgs e)
+    //{
+    //    count++;
+
+    //    if (count == 1)
+    //        CounterBtn.Text = $"Clicked {count} time";
+    //    else
+    //        CounterBtn.Text = $"Clicked {count} times";
+
+    //    SemanticScreenReader.Announce(CounterBtn.Text);
+    //}
+
+    private async void AddNotificationMessage(string message, bool isError, int timeout = 2000)
+    {
+
+        var frame = new Frame()
+        {
+            BackgroundColor = isError ? Colors.Red : Colors.Green,
+            Padding = 10,
+            Content = new Label()
+            {
+                Text = message,
+                TextColor = Colors.White,
+                FontAttributes = FontAttributes.Bold,
+            }
+        };
+
+        // Show message
+        MessageStack.Children.Add(frame);
+
+        // Delete messsage after timeout
+        await Task.Delay(timeout);
+        this.MessageStack.Children.Remove(this.MessageStack.Children[0]);
+    }
+
+    private void PopulateInfo()
+    {
         try
         {
-            // try to ping Doccker daemon through Docker Client --> raises DockerApiException
-            client.System.PingAsync().Wait();
+            //if (this.imagesClient.CheckDockerService() != true)
+            //{
+            //    this.AddNotificationMessage("Docker daemon not reachable", true);
+            //}
 
-            message = "Docker se está ejecutando con normalidad";
+            // Add the list of images and containers to the view data
+            var images = this.imagesClient.GetImages();
+            var containers = this.containersClient.GetContainers();
 
-            // Obtain the list of images available on the Docker server
-            imagesResponse = client.Images.ListImagesAsync(new ImagesListParameters()).Result;
-
-            // Obtain the list of containers on the Docker server
-            containersResponse = client.Containers.ListContainersAsync(new ContainersListParameters
+            foreach (var container in containers)
             {
-                All = true
-            }).Result;
+                this.ImagePicker.Items.Add(string.Join(',', container.Names));
+            }
+
+            foreach (var image in images)
+            {
+                this.ContainerPicker.Items.Add(image.RepoTags.FirstOrDefault());
+            }
         }
         catch (Exception ex)
         {
-            message = $"No se pudo conectar al Docker daemon. Compruebe que Docker se está ejecutando con normalidad:<br />{ex.Message}";
+
+            this.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores:<br />{ex.Message}", true);
         }
     }
-}
 
+    private void OnCreateClicked(object sender, EventArgs e)
+    {
+        //var mappingPortsObject = JsonConvert.DeserializeObject<PortMapping[]>(mappingPorts)!;
+
+        //ResultModel result = await containersClient.CreateContainer(image: image, containerName: containerName, mappingPorts: mappingPortsObject, ct: ct);
+
+        //if (result.IsError == true)
+        //{
+        //    ViewData["ErrorMessage"] = $"No se pudo crear el contenedor:<br />{result.Message}";
+        //    return View("Index");
+        //}
+
+        //// Add the list of images and containers to the view data
+        //ViewData["images"] = this.imagesClient.GetImages();
+        //ViewData["containers"] = this.containersClient.GetContainers();
+        //ViewData["Message"] = result.Message;
+
+        //// Render the view, passing the list of images and containers as arguments
+        //return View("Index");
+    }
+}

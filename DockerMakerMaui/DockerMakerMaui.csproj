@@ -52,4 +52,8 @@
 	  <PackageReference Include="Docker.DotNet" Version="3.125.12" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\DockerMakerLogic\DockerMakerLogic.csproj" />
+	</ItemGroup>
+
 </Project>

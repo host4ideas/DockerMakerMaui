@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerMakerMaui", "DockerMakerMaui\DockerMakerMaui.csproj", "{C0690A5A-29AA-45BF-BBE5-4A5FFCBD4FB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerMakerLogic", "DockerMakerLogic\DockerMakerLogic.csproj", "{8FE22001-761D-4C53-8844-4716BDAC6295}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{C0690A5A-29AA-45BF-BBE5-4A5FFCBD4FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0690A5A-29AA-45BF-BBE5-4A5FFCBD4FB6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C0690A5A-29AA-45BF-BBE5-4A5FFCBD4FB6}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{8FE22001-761D-4C53-8844-4716BDAC6295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE22001-761D-4C53-8844-4716BDAC6295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE22001-761D-4C53-8844-4716BDAC6295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE22001-761D-4C53-8844-4716BDAC6295}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
