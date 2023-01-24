@@ -1,4 +1,7 @@
-﻿using DockerContainerLogic;
+﻿using Docker.DotNet;
+using Docker.DotNet.Models;
+using DockerContainerLogic;
+using System.Runtime.InteropServices;
 
 namespace DockerMakerMaui;
 
@@ -84,6 +87,42 @@ public partial class MainPage : ContentPage
 
     private void OnCreateClicked(object sender, EventArgs e)
     {
+        var IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+        string DockerApiUri()
+        {
+            if (IsWindows)
+                return "npipe://./pipe/docker_engine";
+
+            if (IsLinux)
+                return "unix:///var/run/docker.sock";
+
+            throw new Exception(
+                "Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
+        }
+
+        // Agregar el cliente de Docker como un servicio
+        var client =  new DockerClientConfiguration(
+             new Uri(DockerApiUri()))
+              .CreateClient();
+
+        var images = client.Images.ListImagesAsync(new ImagesListParameters()).Result;
+        var containers = client.Containers.ListContainersAsync(new ContainersListParameters
+        {
+            All = true
+        }).Result;
+
+        foreach (var container in containers)
+        {
+            this.ImagePicker.Items.Add(string.Join(',', container.Names));
+        }
+
+        foreach (var image in images)
+        {
+            this.ContainerPicker.Items.Add(image.RepoTags.FirstOrDefault());
+        }
+
         //var mappingPortsObject = JsonConvert.DeserializeObject<PortMapping[]>(mappingPorts)!;
 
         //ResultModel result = await containersClient.CreateContainer(image: image, containerName: containerName, mappingPorts: mappingPortsObject, ct: ct);
