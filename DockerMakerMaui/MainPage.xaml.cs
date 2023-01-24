@@ -1,23 +1,46 @@
-﻿using Docker.DotNet;
-using Docker.DotNet.Models;
-using DockerContainerLogic;
-using System.Runtime.InteropServices;
+﻿using DockerContainerLogic;
+using System.Diagnostics;
 
 namespace DockerMakerMaui;
 
 public partial class MainPage : ContentPage
 {
     int count = 0;
-    private readonly Images imagesClient;
+    private readonly DockerInstance dockerInstance;
     private readonly Containers containersClient;
+    private readonly Images imagesClient;
+    public List<Frame> notifications;
 
     public MainPage()
     {
         InitializeComponent();
         // Initialize Docker Client
-        this.imagesClient = new();
-        this.containersClient = new();
-        this.PopulateInfo();
+        try
+        {
+            DockerInstance.Instance.Initialize();
+            this.dockerInstance = DockerInstance.Instance;
+            // Dependency injection of the DockerInstance's DockerClient
+            this.containersClient = new Containers(this.dockerInstance._client);
+            this.imagesClient = new Images(this.dockerInstance._client);
+
+            this.CheckDockerDaemon();
+        }
+        catch (Exception ex)
+        {
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 10000);
+        }
+        // Load initial data
+        //this.PopulateInfo();
+    }
+
+    private async void CheckDockerDaemon()
+    {
+        var result = await this.dockerInstance.CheckDockerService();
+
+        if (result.IsError == true)
+        {
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 10000);
+        }
     }
 
     //private void OnCounterClicked(object sender, EventArgs e)
@@ -34,7 +57,6 @@ public partial class MainPage : ContentPage
 
     private async void AddNotificationMessage(string message, bool isError, int timeout = 2000)
     {
-
         var frame = new Frame()
         {
             BackgroundColor = isError ? Colors.Red : Colors.Green,
@@ -55,7 +77,7 @@ public partial class MainPage : ContentPage
         this.MessageStack.Children.Remove(this.MessageStack.Children[0]);
     }
 
-    private void PopulateInfo()
+    private async void PopulateInfo()
     {
         try
         {
@@ -65,8 +87,8 @@ public partial class MainPage : ContentPage
             //}
 
             // Add the list of images and containers to the view data
-            var images = this.imagesClient.GetImages();
-            var containers = this.containersClient.GetContainers();
+            var images = await this.imagesClient.GetImages();
+            var containers = await this.containersClient.GetContainers();
 
             foreach (var container in containers)
             {
@@ -80,47 +102,21 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-
             this.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores:<br />{ex.Message}", true);
         }
     }
 
-    private void OnCreateClicked(object sender, EventArgs e)
+    private async void OnCreateClicked(object sender, EventArgs e)
     {
-        var IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-
-        string DockerApiUri()
+        try
         {
-            if (IsWindows)
-                return "npipe://./pipe/docker_engine";
+            var containers = await this.containersClient.GetContainers();
 
-            if (IsLinux)
-                return "unix:///var/run/docker.sock";
-
-            throw new Exception(
-                "Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
+            this.PopulateInfo();
         }
-
-        // Agregar el cliente de Docker como un servicio
-        var client =  new DockerClientConfiguration(
-             new Uri(DockerApiUri()))
-              .CreateClient();
-
-        var images = client.Images.ListImagesAsync(new ImagesListParameters()).Result;
-        var containers = client.Containers.ListContainersAsync(new ContainersListParameters
+        catch (Exception)
         {
-            All = true
-        }).Result;
-
-        foreach (var container in containers)
-        {
-            this.ImagePicker.Items.Add(string.Join(',', container.Names));
-        }
-
-        foreach (var image in images)
-        {
-            this.ContainerPicker.Items.Add(image.RepoTags.FirstOrDefault());
+            Debug.WriteLine("Error");
         }
 
         //var mappingPortsObject = JsonConvert.DeserializeObject<PortMapping[]>(mappingPorts)!;

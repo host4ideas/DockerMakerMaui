@@ -1,22 +1,33 @@
 ﻿using Docker.DotNet;
+using DockerContainerLogic.Models;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace DockerContainerLogic
 {
     public class DockerInstance
     {
-        public readonly DockerClient ClientInstance;
+        private static DockerInstance _instance;
+        public DockerClient _client;
 
-        public DockerInstance()
+        private DockerInstance()
         {
-            if (this.ClientInstance == null)
+        }
+
+        public static DockerInstance Instance
+        {
+            get
             {
-                this.ClientInstance = CreateDockerInstance();
+                if (_instance == null)
+                {
+                    _instance = new DockerInstance();
+                }
+                return _instance;
             }
         }
 
         #region METHODS 
-        private static DockerClient CreateDockerInstance()
+        public DockerClient Initialize()
         {
             var IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -33,22 +44,32 @@ namespace DockerContainerLogic
                     "Was unable to determine what OS this is running on, does not appear to be Windows or Linux!?");
             }
 
-            // Agregar el cliente de Docker como un servicio
-            return new DockerClientConfiguration(
-                 new Uri(DockerApiUri()))
-                  .CreateClient();
+            try
+            {
+                // Agregar el cliente de Docker como un servicio
+                _client = new DockerClientConfiguration(
+                     new Uri(DockerApiUri()))
+                      .CreateClient();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("****************************************************************");
+                Debug.WriteLine(ex);
+                Debug.WriteLine("****************************************************************");
+            }
+            return _client;
         }
 
-        public bool CheckDockerService()
+        public async Task<ResultModel> CheckDockerService()
         {
             try
             {
-                this.ClientInstance.System.PingAsync().Wait();
-                return true;
+                await this._client.System.PingAsync();
+                return new ResultModel("Daemon is running");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                return new ResultModel(ex.Message, true);
             }
         }
         #endregion

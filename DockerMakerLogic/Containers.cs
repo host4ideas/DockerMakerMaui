@@ -1,16 +1,33 @@
-﻿using Docker.DotNet.Models;
+﻿using Docker.DotNet;
+using Docker.DotNet.Models;
 using DockerContainerLogic.Models;
 
 namespace DockerContainerLogic
 {
-    public class Containers : DockerInstance
+    public class Containers
     {
-        public IList<ContainerListResponse> GetContainers()
+        // Dependency injection
+        private readonly DockerClient _client;
+
+        public Containers(DockerClient client)
         {
-            return this.ClientInstance.Containers.ListContainersAsync(new ContainersListParameters
-            {
-                All = true
-            }).Result;
+            _client = client;
+        }
+
+        public async Task<IList<ContainerListResponse>> GetContainers()
+        {
+            IList<ContainerListResponse> containers = await this._client.Containers.ListContainersAsync(
+                new ContainersListParameters()
+                {
+                    All = true
+                });
+            
+            return containers;
+
+            //return this._client.Containers.ListContainersAsync(new ContainersListParameters
+            //{
+            //    All = true
+            //}).Result;
         }
 
         /// <summary>
@@ -19,10 +36,10 @@ namespace DockerContainerLogic
         /// <param name="image"></param> Name of the image.
         /// <param name="ct"></param>
         /// <returns></returns>
-        private async Task PullImageIfNotExist(string image, CancellationToken ct = default)
+        static private async Task PullImageIfNotExist(DockerClient client, string image, CancellationToken ct = default)
         {
             // List all images on the machine
-            var images = await this.ClientInstance.Images.ListImagesAsync(new ImagesListParameters(), ct);
+            var images = await client.Images.ListImagesAsync(new ImagesListParameters(), ct);
 
             // Check if the image is present on the machine
             var exists = images.Any(x => x.RepoTags.Contains(image));
@@ -30,7 +47,7 @@ namespace DockerContainerLogic
             if (!exists)
             {
                 // Pull the image from the Docker registry
-                await this.ClientInstance.Images.CreateImageAsync(
+                await client.Images.CreateImageAsync(
                     new ImagesCreateParameters
                     {
                         FromImage = image,
@@ -48,7 +65,8 @@ namespace DockerContainerLogic
         /// <param name="mappingPorts">The map of the exposed ports and it's binding to a it's host port</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public async Task<ResultModel> CreateFormContainer(
+        public static async Task<ResultModel> CreateFormContainer(
+            DockerClient client,
             string image,
             string containerName,
             PortMapping[] mappingPorts,
@@ -56,7 +74,7 @@ namespace DockerContainerLogic
         {
             try
             {
-                await PullImageIfNotExist(image, ct);
+                await PullImageIfNotExist(client, image, ct);
 
                 // Crear una nueva configuración para el contenedor
                 var config = new Config
@@ -108,7 +126,7 @@ namespace DockerContainerLogic
                 }
 
                 // Crear el contenedor
-                var createdContainer = await this.ClientInstance.Containers.CreateContainerAsync(new CreateContainerParameters(config)
+                var createdContainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters(config)
                 {
                     Name = containerName,
                     Image = image,
@@ -129,12 +147,12 @@ namespace DockerContainerLogic
         /// </summary>
         /// <param name="containerID"></param>
         /// <returns></returns>
-        public async Task<ResultModel> StopContainer(string containerID)
+         public static async Task<ResultModel> StopContainer(DockerClient client, string containerID)
         {
             try
             {
                 // Stop and remove the container
-                await this.ClientInstance.Containers.StopContainerAsync(containerID,
+                await client.Containers.StopContainerAsync(containerID,
                     new ContainerStopParameters
                     {
                         WaitBeforeKillSeconds = 10
@@ -152,11 +170,11 @@ namespace DockerContainerLogic
         /// </summary>
         /// <param name="containerID"></param>
         /// <returns></returns>
-        public async Task<ResultModel> RemoveContainer(string containerID)
+        public static async Task<ResultModel> RemoveContainer(DockerClient client, string containerID)
         {
             try
             {
-                await this.ClientInstance.Containers.RemoveContainerAsync(containerID,
+                await client.Containers.RemoveContainerAsync(containerID,
                 new ContainerRemoveParameters
                 {
                     Force = true
