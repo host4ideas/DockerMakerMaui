@@ -37,7 +37,7 @@
                 HorizontalOptions="Center" />
 
             <StackLayout x:Name="ContainersStack"
-                  Margin="10" HorizontalOptions="Center" >
+                  Margin="5" HorizontalOptions="Center" >
 
                 <StackLayout HorizontalOptions="Center">
                     <Grid ColumnSpacing="5">
@@ -57,13 +57,14 @@
 
                 <Picker x:Name="ContainerPicker"
                     SelectedIndex="0" HorizontalOptions="Center"
-                    SelectedIndexChanged="OnPickerContainersSelectedIndexChanged">
+                    SelectedIndexChanged="OnPickerContainersSelectedIndexChanged"
+                    Margin="5">
                     <!--Incluir los contenedores de Docker disponibles-->
                 </Picker>
             </StackLayout>
 
             <StackLayout x:Name="ImagesStack"
-                  Margin="10" HorizontalOptions="Center">
+                  Margin="5" HorizontalOptions="Center">
                 <Label Text="Imágenes disponibles"
                 FontAttributes="Bold" HorizontalOptions="Center"/>
                 <Picker x:Name="ImagePicker"
@@ -73,8 +74,7 @@
                 </Picker>
             </StackLayout>
 
-            <StackLayout x:Name="PortMappingStack"
-                  Margin="10" HorizontalOptions="Center">
+            <StackLayout Margin="10" HorizontalOptions="Center">
 
                 <StackLayout HorizontalOptions="Center">
                     <Grid ColumnSpacing="5">
@@ -86,12 +86,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Label Grid.Row="0" Grid.Column="0" Text="Port mapping (Container Port : Host Port)" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Button Grid.Row="0" Grid.Column="1" Text="ADD" TextColor="White" BackgroundColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button x:Name="AddPortMappingBtn" Clicked="OnAddPortMappingClicked" Grid.Row="0" Grid.Column="1" Text="ADD" TextColor="White" BackgroundColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Grid>
                 </StackLayout>
 
-                <StackLayout HorizontalOptions="Center">
-                    <Grid>
+                <StackLayout HorizontalOptions="Center" x:Name="PortMappingStack">
+                    <Grid x:Name="PortMappingOptions">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
@@ -102,10 +102,10 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Row="0" Grid.Column="0" HeightRequest="40" CornerRadius="5" Text="Delete" BackgroundColor="Red" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
                         <Frame Grid.Row="0" Grid.Column="1" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Entry HeightRequest="40"/>
+                            <Entry HeightRequest="40" Placeholder="Eg.: tcp/3000"/>
                         </Frame>
                         <Frame Grid.Row="0" Grid.Column="2" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Entry HeightRequest="40"/>
+                            <Entry HeightRequest="40" Placeholder="Eg.: 8080"/>
                         </Frame>
                     </Grid>
                 </StackLayout>

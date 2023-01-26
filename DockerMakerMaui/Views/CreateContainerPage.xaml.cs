@@ -11,11 +11,13 @@ public partial class CreateContainerPage : ContentPage
     private readonly Containers containersClient;
     private readonly Images imagesClient;
     public List<Frame> notifications;
+    private List<PortMapping> ports;
 
     public CreateContainerPage()
     {
         InitializeComponent();
         this.serviceAvailable = false;
+        this.ports = new List<PortMapping>();
         // Initialize Docker Client
         try
         {
@@ -25,14 +27,12 @@ public partial class CreateContainerPage : ContentPage
             this.containersClient = new Containers(this.dockerInstance._client);
             this.imagesClient = new Images(this.dockerInstance._client);
 
-            this.CheckDockerDaemon();
+            this.PopulateInfo();
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 3000);
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 10000);
         }
-        // Load initial data
-        //this.PopulateInfo();
     }
 
     private async void CheckDockerDaemon()
@@ -41,7 +41,7 @@ public partial class CreateContainerPage : ContentPage
 
         if (result.IsError == true)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 3000);
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 10000);
             this.serviceAvailable = false;
         }
         else
@@ -75,6 +75,7 @@ public partial class CreateContainerPage : ContentPage
     private async void PopulateInfo()
     {
         this.CheckDockerDaemon();
+        // Exit if Docker is not running
         if (this.serviceAvailable == false)
         {
             return;
@@ -169,5 +170,11 @@ public partial class CreateContainerPage : ContentPage
         {
             //monkeyNameLabel.Text = (string)picker.ItemsSource[selectedIndex];
         }
+    }
+
+    void OnAddPortMappingClicked(object sender, EventArgs e)
+    {
+        Debug.WriteLine("*************************");
+        this.PortMappingOptions.CopyTo((IView[])this.PortMappingStack.Children, this.PortMappingStack.Children.Count);
     }
 }
