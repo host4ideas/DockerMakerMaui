@@ -1,19 +1,20 @@
-Ôªøusing DockerContainerLogic;
-using System.Diagnostics;
+using DockerContainerLogic;
 
-namespace DockerMakerMaui;
+namespace DockerMakerMaui.Views;
 
-public partial class MainPage : ContentPage
+public partial class CreateContainerPage : ContentPage
 {
     int count = 0;
+    private bool serviceAvailable;
     private readonly DockerInstance dockerInstance;
     private readonly Containers containersClient;
     private readonly Images imagesClient;
     public List<Frame> notifications;
 
-    public MainPage()
+    public CreateContainerPage()
     {
         InitializeComponent();
+        this.serviceAvailable = false;
         // Initialize Docker Client
         try
         {
@@ -27,7 +28,7 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 10000);
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 3000);
         }
         // Load initial data
         //this.PopulateInfo();
@@ -39,21 +40,14 @@ public partial class MainPage : ContentPage
 
         if (result.IsError == true)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 10000);
+            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 3000);
+            this.serviceAvailable = false;
+        }
+        else
+        {
+            this.serviceAvailable = true;
         }
     }
-
-    //private void OnCounterClicked(object sender, EventArgs e)
-    //{
-    //    count++;
-
-    //    if (count == 1)
-    //        CounterBtn.Text = $"Clicked {count} time";
-    //    else
-    //        CounterBtn.Text = $"Clicked {count} times";
-
-    //    SemanticScreenReader.Announce(CounterBtn.Text);
-    //}
 
     private async void AddNotificationMessage(string message, bool isError, int timeout = 2000)
     {
@@ -79,6 +73,11 @@ public partial class MainPage : ContentPage
 
     private async void PopulateInfo()
     {
+        this.CheckDockerDaemon();
+        if (this.serviceAvailable == false)
+        {
+            return;
+        }
         try
         {
             //if (this.imagesClient.CheckDockerService() != true)
@@ -92,22 +91,27 @@ public partial class MainPage : ContentPage
 
             foreach (var container in containers)
             {
-                this.ImagePicker.Items.Add(string.Join(',', container.Names));
+                this.ImagePicker.ItemsSource.Add(string.Join(',', container.Names));
             }
 
             foreach (var image in images)
             {
-                this.ContainerPicker.Items.Add(image.RepoTags.FirstOrDefault());
+                this.ContainerPicker.ItemsSource.Add(image.RepoTags.FirstOrDefault());
             }
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"No se pudo recoger la informaci√≥n de im√°genes ni contenedores:<br />{ex.Message}", true);
+            this.AddNotificationMessage($"No se pudo recoger la informaciÛn de im·genes ni contenedores:<br />{ex.Message}", true);
         }
     }
 
     private async void OnCreateClicked(object sender, EventArgs e)
     {
+        this.CheckDockerDaemon();
+        if (this.serviceAvailable == false)
+        {
+            return;
+        }
         try
         {
             var containers = await this.containersClient.GetContainers();
@@ -136,5 +140,10 @@ public partial class MainPage : ContentPage
 
         //// Render the view, passing the list of images and containers as arguments
         //return View("Index");
+    }
+
+    private void OnReconnectClicked(object sender, EventArgs e)
+    {
+        this.CheckDockerDaemon();
     }
 }
