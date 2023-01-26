@@ -1,4 +1,5 @@
 using DockerContainerLogic;
+using DockerContainerLogic.Models;
 
 namespace DockerMakerMaui.Views;
 
@@ -80,28 +81,29 @@ public partial class CreateContainerPage : ContentPage
         }
         try
         {
-            //if (this.imagesClient.CheckDockerService() != true)
-            //{
-            //    this.AddNotificationMessage("Docker daemon not reachable", true);
-            //}
-
             // Add the list of images and containers to the view data
             var images = await this.imagesClient.GetImages();
             var containers = await this.containersClient.GetContainers();
 
+            // Add Images to the Picker
             foreach (var container in containers)
             {
-                this.ImagePicker.ItemsSource.Add(string.Join(',', container.Names));
+                //this.ContainerPicker.Items.Add(string.Join(',', container.Names));
+                Debug.WriteLine(string.Join(',', container.Names));
+                this.ContainerPicker.Items.Add(string.Join(',', container.Names));
             }
 
+            // Add Images to the Picker
             foreach (var image in images)
             {
-                this.ContainerPicker.ItemsSource.Add(image.RepoTags.FirstOrDefault());
+                //this.ImagePicker.Items.Add(image.RepoTags.FirstOrDefault());
+                Debug.WriteLine(image.RepoTags.FirstOrDefault());
+                this.ImagePicker.Items.Add(image.RepoTags.FirstOrDefault());
             }
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores:<br />{ex.Message}", true);
+            this.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores: {ex.Message}", true);
         }
     }
 
@@ -145,5 +147,27 @@ public partial class CreateContainerPage : ContentPage
     private void OnReconnectClicked(object sender, EventArgs e)
     {
         this.CheckDockerDaemon();
+    }
+
+    void OnPickerImagesSelectedIndexChanged(object sender, EventArgs e)
+    {
+        var picker = (Picker)sender;
+        int selectedIndex = picker.SelectedIndex;
+
+        if (selectedIndex != -1)
+        {
+            //monkeyNameLabel.Text = (string)picker.ItemsSource[selectedIndex];
+        }
+    }
+
+    void OnPickerContainersSelectedIndexChanged(object sender, EventArgs e)
+    {
+        var picker = (Picker)sender;
+        int selectedIndex = picker.SelectedIndex;
+
+        if (selectedIndex != -1)
+        {
+            //monkeyNameLabel.Text = (string)picker.ItemsSource[selectedIndex];
+        }
     }
 }

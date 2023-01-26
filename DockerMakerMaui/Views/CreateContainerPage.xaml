@@ -39,19 +39,25 @@
             <StackLayout x:Name="ContainersStack"
                   Margin="10" HorizontalOptions="Center" >
 
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Margin="10" VerticalOptions="Center" >
-                    <Label Text="Contenedores disponibles"
-                FontAttributes="Bold"/>
-
-                    <Button Text="▶"
-                         TextColor="Green"
-                         Margin="5"/>
-                    <Button Text="🟥"
-                         TextColor="Red"
-                         Margin="5"/>
+                <StackLayout HorizontalOptions="Center">
+                    <Grid ColumnSpacing="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" FontAttributes="Bold" Text="Contenedores disponibles"  HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button Grid.Row="0" Grid.Column="1" Text="▶" TextColor="Green" BackgroundColor="Black" BorderColor="Green" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button Grid.Row="0" Grid.Column="2" Text="🟥" BackgroundColor="Black" BorderColor="Red"  HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Grid>
                 </StackLayout>
+
                 <Picker x:Name="ContainerPicker"
-                 SelectedIndex="0" HorizontalOptions="Center" >
+                    SelectedIndex="0" HorizontalOptions="Center"
+                    SelectedIndexChanged="OnPickerContainersSelectedIndexChanged">
                     <!--Incluir los contenedores de Docker disponibles-->
                 </Picker>
             </StackLayout>
@@ -61,9 +67,49 @@
                 <Label Text="Imágenes disponibles"
                 FontAttributes="Bold" HorizontalOptions="Center"/>
                 <Picker x:Name="ImagePicker"
-                 SelectedIndex="0" HorizontalOptions="Center"  Margin="10">
+                SelectedIndex="0" HorizontalOptions="Center"  Margin="10"
+                SelectedIndexChanged="OnPickerImagesSelectedIndexChanged">
                     <!--Incluir las imágenes de Docker disponibles-->
                 </Picker>
+            </StackLayout>
+
+            <StackLayout x:Name="PortMappingStack"
+                  Margin="10" HorizontalOptions="Center">
+
+                <StackLayout HorizontalOptions="Center">
+                    <Grid ColumnSpacing="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Text="Port mapping (Container Port : Host Port)" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button Grid.Row="0" Grid.Column="1" Text="ADD" TextColor="White" BackgroundColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Grid>
+                </StackLayout>
+
+                <StackLayout HorizontalOptions="Center">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Row="0" Grid.Column="0" HeightRequest="40" CornerRadius="5" Text="Delete" BackgroundColor="Red" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Frame Grid.Row="0" Grid.Column="1" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Entry HeightRequest="40"/>
+                        </Frame>
+                        <Frame Grid.Row="0" Grid.Column="2" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Entry HeightRequest="40"/>
+                        </Frame>
+                    </Grid>
+                </StackLayout>
+
             </StackLayout>
 
             <StackLayout Orientation="Horizontal"
