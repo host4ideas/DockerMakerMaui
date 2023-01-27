@@ -91,23 +91,6 @@
                 </StackLayout>
 
                 <StackLayout HorizontalOptions="Center" x:Name="PortMappingStack">
-                    <Grid x:Name="PortMappingOptions">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Row="0" Grid.Column="0" HeightRequest="40" CornerRadius="5" Text="Delete" BackgroundColor="Red" TextColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Frame Grid.Row="0" Grid.Column="1" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Entry HeightRequest="40" Placeholder="Eg.: tcp/3000"/>
-                        </Frame>
-                        <Frame Grid.Row="0" Grid.Column="2" HeightRequest="50" CornerRadius="5" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Entry HeightRequest="40" Placeholder="Eg.: 8080"/>
-                        </Frame>
-                    </Grid>
                 </StackLayout>
 
             </StackLayout>

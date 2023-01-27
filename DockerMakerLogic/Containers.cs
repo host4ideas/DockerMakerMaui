@@ -36,10 +36,10 @@ namespace DockerContainerLogic
         /// <param name="image"></param> Name of the image.
         /// <param name="ct"></param>
         /// <returns></returns>
-        static private async Task PullImageIfNotExist(DockerClient client, string image, CancellationToken ct = default)
+        private async Task PullImageIfNotExist(string image, CancellationToken ct = default)
         {
             // List all images on the machine
-            var images = await client.Images.ListImagesAsync(new ImagesListParameters(), ct);
+            var images = await this._client.Images.ListImagesAsync(new ImagesListParameters(), ct);
 
             // Check if the image is present on the machine
             var exists = images.Any(x => x.RepoTags.Contains(image));
@@ -47,7 +47,7 @@ namespace DockerContainerLogic
             if (!exists)
             {
                 // Pull the image from the Docker registry
-                await client.Images.CreateImageAsync(
+                await this._client.Images.CreateImageAsync(
                     new ImagesCreateParameters
                     {
                         FromImage = image,
@@ -65,16 +65,15 @@ namespace DockerContainerLogic
         /// <param name="mappingPorts">The map of the exposed ports and it's binding to a it's host port</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns></returns>
-        public static async Task<ResultModel> CreateFormContainer(
-            DockerClient client,
+        public async Task<ResultModel> CreateFormContainer(
             string image,
             string containerName,
-            PortMapping[] mappingPorts,
+            List<PortMapping> mappingPorts,
             CancellationToken ct = default)
         {
             try
             {
-                await PullImageIfNotExist(client, image, ct);
+                await PullImageIfNotExist(image, ct);
 
                 // Crear una nueva configuración para el contenedor
                 var config = new Config
@@ -124,9 +123,9 @@ namespace DockerContainerLogic
                         { "80/tcp", default },
                     };
                 }
-
+                
                 // Crear el contenedor
-                var createdContainer = await client.Containers.CreateContainerAsync(new CreateContainerParameters(config)
+                var createdContainer = await this._client.Containers.CreateContainerAsync(new CreateContainerParameters(config)
                 {
                     Name = containerName,
                     Image = image,
@@ -147,12 +146,12 @@ namespace DockerContainerLogic
         /// </summary>
         /// <param name="containerID"></param>
         /// <returns></returns>
-         public static async Task<ResultModel> StopContainer(DockerClient client, string containerID)
+         public async Task<ResultModel> StopContainer(string containerID)
         {
             try
             {
                 // Stop and remove the container
-                await client.Containers.StopContainerAsync(containerID,
+                await this._client.Containers.StopContainerAsync(containerID,
                     new ContainerStopParameters
                     {
                         WaitBeforeKillSeconds = 10
@@ -170,11 +169,11 @@ namespace DockerContainerLogic
         /// </summary>
         /// <param name="containerID"></param>
         /// <returns></returns>
-        public static async Task<ResultModel> RemoveContainer(DockerClient client, string containerID)
+        public async Task<ResultModel> RemoveContainer(string containerID)
         {
             try
             {
-                await client.Containers.RemoveContainerAsync(containerID,
+                await this._client.Containers.RemoveContainerAsync(containerID,
                 new ContainerRemoveParameters
                 {
                     Force = true
