@@ -1,5 +1,6 @@
 using DockerContainerLogic;
 using DockerContainerLogic.Models;
+using DockerMakerMaui.Resources.Helpers;
 
 namespace DockerMakerMaui.Views;
 
@@ -21,6 +22,7 @@ public partial class CreateContainerPage : ContentPage
         {
             new PortMapping() { ContainerPort = "", HostPort = "" }
         };
+
         this.ShowPortMapping();
         // Initialize Docker Client
         try
@@ -35,7 +37,7 @@ public partial class CreateContainerPage : ContentPage
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, 10000);
+            AppNotification.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {ex.Message}", true, MessageStack, 10000);
         }
     }
 
@@ -45,7 +47,7 @@ public partial class CreateContainerPage : ContentPage
 
         if (result.IsError == true)
         {
-            this.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, 10000);
+            AppNotification.AddNotificationMessage($"Unable to reach Docker daemon. Check if it's running: {result.Message}", true, MessageStack, 10000);
             this.serviceAvailable = false;
             return false;
         }
@@ -54,28 +56,6 @@ public partial class CreateContainerPage : ContentPage
             this.serviceAvailable = true;
             return true;
         }
-    }
-
-    private async void AddNotificationMessage(string message, bool isError, int timeout = 2000)
-    {
-        var frame = new Frame()
-        {
-            BackgroundColor = isError ? Colors.Red : Colors.Green,
-            Padding = 10,
-            Content = new Label()
-            {
-                Text = message,
-                TextColor = Colors.White,
-                FontAttributes = FontAttributes.Bold,
-            }
-        };
-
-        // Show message
-        MessageStack.Children.Add(frame);
-
-        // Delete messsage after timeout
-        await Task.Delay(timeout);
-        this.MessageStack.Children.Remove(this.MessageStack.Children[0]);
     }
 
     private async void PopulateInfo()
@@ -91,27 +71,32 @@ public partial class CreateContainerPage : ContentPage
             var images = await this.imagesClient.GetImages();
             var containers = await this.containersClient.GetContainers();
 
+            var containerList = new List<string>();
+            var imageList = new List<string>();
+
             // Add Images to the Picker
+            this.ContainerPicker.ItemsSource = null;
             foreach (var container in containers)
             {
-                Debug.WriteLine("*** CONTAINERS ***");
-                Debug.WriteLine(string.Join(',', container.Names));
+                containerList.Add(string.Join(',', container.Names));
                 this.ContainerPicker.Items.Add(string.Join(',', container.Names));
             }
+            this.ContainerPicker.ItemsSource = containerList;
             this.ContainerPicker.SelectedIndex = 0;
 
             // Add Images to the Picker
+            this.ImagePicker.ItemsSource = null;
             foreach (var image in images)
             {
-                Debug.WriteLine("*** IMAGES ***");
-                Debug.WriteLine(image.RepoTags.FirstOrDefault());
                 this.ImagePicker.Items.Add(image.RepoTags.FirstOrDefault());
+                imageList.Add(image.RepoTags.FirstOrDefault());
             }
+            this.ImagePicker.ItemsSource = imageList;
             this.ImagePicker.SelectedIndex = 0;
         }
         catch (Exception ex)
         {
-            this.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores: {ex.Message}", true);
+            AppNotification.AddNotificationMessage($"No se pudo recoger la información de imágenes ni contenedores: {ex.Message}", true, MessageStack);
         }
     }
 
@@ -123,22 +108,25 @@ public partial class CreateContainerPage : ContentPage
         }
         try
         {
+            Debug.WriteLine(this.ports[0].ContainerPort);
+            Debug.WriteLine(this.ports[0].HostPort);
+
             ResultModel result = await containersClient.CreateFormContainer(
                  image: this.ImagePicker.SelectedItem.ToString(),
-                 containerName: this.ContainerPicker.SelectedItem.ToString(),
+                 containerName: this.ContainerNameEntry.Text,
                  mappingPorts: this.ports
              );
 
             if (result.IsError == true)
             {
-                this.AddNotificationMessage($"No se pudo crear el contenedor: {result.Message}", true);
+                AppNotification.AddNotificationMessage($"No se pudo crear el contenedor: {result.Message}", true, MessageStack);
             }
 
             this.PopulateInfo();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            Debug.WriteLine("Error");
+            AppNotification.AddNotificationMessage("Error craeting container: " + ex.Message, true, MessageStack);
         }
     }
 
@@ -221,12 +209,10 @@ public partial class CreateContainerPage : ContentPage
             {
                 Text = portMapping.ContainerPort,
                 HeightRequest = 40,
-                Placeholder = "Eg.: tcp/3000",
+                Placeholder = "Eg.: 3000/tcp",
             };
 
             entryContainerPort.TextChanged += (sender, e) => { portMapping.ContainerPort = entryContainerPort.Text; };
-
-            //entryContainerPort.TextChanged += EntryContainerPort_TextChanged;
 
             Frame frameContainerPort = new()
             {
@@ -249,7 +235,7 @@ public partial class CreateContainerPage : ContentPage
             {
                 Text = portMapping.HostPort,
                 HeightRequest = 40,
-                Placeholder = "Eg.: tcp/3000",
+                Placeholder = "Eg.: 8080",
             };
 
             entryHostPort.TextChanged += (sender, e) => { portMapping.HostPort = entryHostPort.Text; };

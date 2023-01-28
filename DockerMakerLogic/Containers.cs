@@ -23,11 +23,6 @@ namespace DockerContainerLogic
                 });
             
             return containers;
-
-            //return this._client.Containers.ListContainersAsync(new ContainersListParameters
-            //{
-            //    All = true
-            //}).Result;
         }
 
         /// <summary>

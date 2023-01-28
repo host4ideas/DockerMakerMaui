@@ -8,19 +8,19 @@
 
     <ShellContent
         Shell.NavBarIsVisible="true"
-        Title="Main"
+        Title="Containers"
         Icon="iconblank.png"
-        ContentTemplate="{DataTemplate views:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate views:ContainersPage}"
+        Route="ContainersPage" />
     <ShellContent
         Shell.NavBarIsVisible="true"
-        Title="Blank"
+        Title="Images"
         Icon="iconblank.png"
-        ContentTemplate="{DataTemplate views:BlankPage}"
-        Route="BlankPage" />
+        ContentTemplate="{DataTemplate views:ImagesPage}"
+        Route="ImagesPage" />
     <ShellContent
         Shell.NavBarIsVisible="true"
-        Title="Blank"
+        Title="Create containers"
         Icon="iconblank.png"
         ContentTemplate="{DataTemplate views:CreateContainerPage}"
         Route="CreateContainerPage" />

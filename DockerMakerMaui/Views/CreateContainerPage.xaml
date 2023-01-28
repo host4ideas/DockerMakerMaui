@@ -2,10 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DockerMakerMaui.Views.CreateContainerPage"
-             Title="CreateContainerPage">
+             Title="Create containers with docker-compose">
     <ScrollView>
         <VerticalStackLayout
-            Spacing="25"
+            Spacing="20"
             Padding="30,0"
             VerticalOptions="Center">
             
@@ -16,11 +16,9 @@
                     Text="Reconectar"/>
             </StackLayout>
 
-            <StackLayout x:Name="MessageStack"
-                  Margin="10">
+            <StackLayout x:Name="MessageStack" >
             </StackLayout>
-            <StackLayout x:Name="ErrorStack"
-                  Margin="10">
+            <StackLayout x:Name="ErrorStack" >
             </StackLayout>
 
             <Label
@@ -55,20 +53,15 @@
                     </Grid>
                 </StackLayout>
 
-                <Picker x:Name="ContainerPicker"
-                    SelectedIndex="0" HorizontalOptions="Center"
-                    SelectedIndexChanged="OnPickerContainersSelectedIndexChanged"
-                    Margin="5">
-                    <!--Incluir los contenedores de Docker disponibles-->
-                </Picker>
+                <Picker x:Name="ContainerPicker" HorizontalOptions="Center"
+                    Margin="5" />
             </StackLayout>
 
             <StackLayout x:Name="ImagesStack"
                   Margin="5" HorizontalOptions="Center">
                 <Label Text="Imágenes disponibles"
                 FontAttributes="Bold" HorizontalOptions="Center"/>
-                <Picker x:Name="ImagePicker"
-                SelectedIndex="0" HorizontalOptions="Center"  Margin="10"
+                <Picker x:Name="ImagePicker" HorizontalOptions="Center"  Margin="10"
                 SelectedIndexChanged="OnPickerImagesSelectedIndexChanged">
                     <!--Incluir las imágenes de Docker disponibles-->
                 </Picker>
@@ -86,7 +79,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Label Grid.Row="0" Grid.Column="0" Text="Port mapping (Container Port : Host Port)" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
-                        <Button x:Name="AddPortMappingBtn" Clicked="OnAddPortMappingClicked" Grid.Row="0" Grid.Column="1" Text="ADD" TextColor="White" BackgroundColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Button x:Name="AddPortMappingBtn" Clicked="OnAddPortMappingClicked" Grid.Row="0" Grid.Column="1" Text="ADD" BorderColor="White" TextColor="White" BackgroundColor="Black" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Grid>
                 </StackLayout>
 
